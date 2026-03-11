@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sven's Homepage</title>
+  <link rel="stylesheet" href="meineseite.css" />
+</head>
+<body>
+  <div class="space-layer nebula"></div>
+  <div class="space-layer stars-far"></div>
+  <div class="space-layer stars-mid"></div>
+  <div class="shooting-star s1"></div>
+  <div class="shooting-star s2"></div>
+  <div class="shooting-star s3"></div>
+
+  <div class="page">
+    <header>
+      <h1>Arcade Games</h1>
+      <p>Wilkommen auf der Arcade Seite im Styl Space Neon Arcade mit animiertem Weltraum und spielbaren Mini-Games.</p>
+    </header>
+
+    <main class="layout">
+      <aside class="side-column">
+        <section class="card">
+          <h2>Weltraum-Features</h2>
+          <ul>
+            <li>Langsam driftende Sterne</li>
+            <li>Sternschnuppen</li>
+            <li>Parallax-Scroll-Effekt</li>
+            <li>Neon-Arcade-Look</li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="panel">
+        <div class="tabs">
+          <button class="tab-btn active" data-game="hangman">Hangman</button>
+          <button class="tab-btn" data-game="tictactoe">Tic Tac Toe</button>
+          <button class="tab-btn" data-game="memory">Memory</button>
+          <button class="tab-btn" data-game="snake">Snake</button>
+        </div>
+
+        <section class="game-view active" id="game-hangman">
+          <div class="headline">
+            <span class="badge">Hangman</span>
+            <h2>Errate das Wort</h2>
+          </div>
+          <p class="subtext" id="hangmanStatus">Falsche Versuche: 0 / 6</p>
+
+          <div class="game-box">
+            <div class="hangman-drawing" id="hangmanDrawing"></div>
+            <div class="word-display" id="hangmanWord"></div>
+            <div class="hangman-keyboard" id="hangmanKeyboard"></div>
+
+            <div class="action-row">
+              <button class="action-btn" id="hangmanReset">Neues Spiel</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="game-view" id="game-tictactoe">
+          <div class="headline">
+            <span class="badge">Tic Tac Toe</span>
+            <h2>X gegen O</h2>
+	    <h4>(Für 2 Spieler)</h4>
+          </div>
+          <p class="subtext" id="tttStatus">Spieler X ist am Zug.</p>
+
+          <div class="game-box">
+            <div class="tictactoe-grid" id="tttGrid"></div>
+
+            <div class="action-row">
+              <button class="action-btn" id="tttReset">Neustarten</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="game-view" id="game-memory">
+          <div class="headline">
+            <span class="badge">Memory</span>
+            <h2>Finde die Paare</h2>
+          </div>
+          <p class="subtext" id="memoryStatus">Züge: 0 · Gefundene Paare: 0 / 8</p>
+
+          <div class="game-box">
+            <div class="memory-grid" id="memoryGrid"></div>
+
+            <div class="action-row">
+              <button class="action-btn" id="memoryReset">Neu mischen</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="game-view" id="game-snake">
+          <div class="headline">
+            <span class="badge">Snake</span>
+            <h2>Neon Schlange</h2>
+          </div>
+          <p class="subtext" id="snakeStatus">Score: 0 · Nutze Pfeiltasten oder WASD.</p>
+
+          <div class="game-box">
+            <div class="canvas-wrap">
+              <canvas id="snakeCanvas" width="520" height="520"></canvas>
+            </div>
+
+            <div class="action-row">
+              <button class="action-btn" id="snakeStart">Start / Neustart</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-column">
+        <section class="card">
+          <h2>Arcade</h2>
+          <p>Hangman, Tic Tac Toe, Memory und Snake sind spielbar.<br>
+	     Viel Spaß!
+	  </p>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer">
+	<span>© <span id="year"></span> Sven Medin Kolenovic // aka Shadowhunt</span>
+    </footer>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    window.addEventListener("scroll", () => {
+      root.style.setProperty("--scrollY", `${window.scrollY}px`);
+    });
+
+    const tabs = document.querySelectorAll(".tab-btn");
+    const views = document.querySelectorAll(".game-view");
+
+    tabs.forEach((button) => {
+      button.addEventListener("click", () => {
+        tabs.forEach((tab) => tab.classList.remove("active"));
+        views.forEach((view) => view.classList.remove("active"));
+
+        button.classList.add("active");
+
+        const targetView = document.getElementById(`game-${button.dataset.game}`);
+        if (targetView) {
+          targetView.classList.add("active");
+        }
+      });
+    });
+
+    // =========================
+    // HANGMAN
+    // =========================
+    (() => {
+      const words = [
+        "SVEN",
+        "GALAXIE",
+        "NEON",
+        "KOSMOS",
+        "STERNENSTAUB",
+        "ORBIT",
+        "LASER",
+	"METEORIT",
+	"ASTEROID",
+	"MILCHSTRASSE",
+	"STERN",
+	"UNIVERSUM",
+	"UMLAUFBAHN",
+	"GRAVITATION",
+	"SUPERNOVA",
+	"STERNENSYSTEM",
+	"RAUMSCHIFF",
+	"RAUMSTATION",
+	"ASTRONAUT",
+	"SATELIT",
+	"TELESKOP",
+	"PLANET",
+	"LICHTJAHR",
+	"ATMOSPHERE",
+	"SCHWERELOSIGKEIT",
+	"SONNENSYSTEM",
+      ];
+
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+      const maxWrong = 6;
+      const stages = [
+        "",
+        "O",
+        "O\n |",
+        "O\n/|",
+        "O\n/|\\",
+        "O\n/|\\\n/",
+        "O\n/|\\\n/ \\",
+      ];
+
+      const status = document.getElementById("hangmanStatus");
+      const drawing = document.getElementById("hangmanDrawing");
+      const wordDisplay = document.getElementById("hangmanWord");
+      const keyboard = document.getElementById("hangmanKeyboard");
+      const resetButton = document.getElementById("hangmanReset");
+
+      let targetWord = "";
+      let guessedLetters = [];
+      let wrongGuesses = 0;
+
+      function isWon() {
+        return targetWord.split("").every((letter) => guessedLetters.includes(letter));
+      }
+
+      function isLost() {
+        return wrongGuesses >= maxWrong;
+      }
+
+      function render() {
+        status.textContent = `Falsche Versuche: ${wrongGuesses} / ${maxWrong}`;
+        drawing.textContent = stages[wrongGuesses];
+        wordDisplay.innerHTML = "";
+
+        targetWord.split("").forEach((letter) => {
+          const span = document.createElement("span");
+          span.className = "letter-slot";
+          span.textContent = guessedLetters.includes(letter) || isLost() ? letter : "_";
+          wordDisplay.appendChild(span);
+        });
+      }
+
+      function disableKeys() {
+        keyboard.querySelectorAll("button").forEach((button) => {
+          button.disabled = true;
+        });
+      }
+
+      function guessLetter(letter, button) {
+        if (guessedLetters.includes(letter) || isWon() || isLost()) {
+          return;
+        }
+
+        guessedLetters.push(letter);
+
+        if (targetWord.includes(letter)) {
+          button.classList.add("correct");
+        } else {
+          wrongGuesses++;
+          button.classList.add("wrong");
+        }
+
+        button.disabled = true;
+        render();
+
+        if (isWon() || isLost()) {
+          disableKeys();
+        }
+      }
+
+      function resetGame() {
+        targetWord = words[Math.floor(Math.random() * words.length)];
+        guessedLetters = [];
+        wrongGuesses = 0;
+        keyboard.innerHTML = "";
+
+        alphabet.forEach((letter) => {
+          const button = document.createElement("button");
+          button.className = "hangman-key";
+          button.textContent = letter;
+          button.addEventListener("click", () => guessLetter(letter, button));
+          keyboard.appendChild(button);
+        });
+
+        render();
+      }
+
+      resetButton.addEventListener("click", resetGame);
+      resetGame();
+    })();
+
+    // =========================
+    // TIC TAC TOE
+    // =========================
+    (() => {
+      const grid = document.getElementById("tttGrid");
+      const status = document.getElementById("tttStatus");
+      const resetButton = document.getElementById("tttReset");
+
+      const winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      let board = Array(9).fill("");
+      let currentPlayer = "X";
+      let gameFinished = false;
+
+      function checkWinner() {
+        for (const [a, b, c] of winningCombinations) {
+          if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return board[a];
+          }
+        }
+        return null;
+      }
+
+      function makeMove(index) {
+        if (gameFinished || board[index]) {
+          return;
+        }
+
+        board[index] = currentPlayer;
+
+        const winner = checkWinner();
+
+        if (winner) {
+          gameFinished = true;
+          status.textContent = `Spieler ${winner} gewinnt!`;
+        } else if (board.every(Boolean)) {
+          gameFinished = true;
+          status.textContent = "Unentschieden!";
+        } else {
+          currentPlayer = currentPlayer === "X" ? "O" : "X";
+          status.textContent = `Spieler ${currentPlayer} ist am Zug.`;
+        }
+
+        render();
+      }
+
+      function render() {
+        grid.innerHTML = "";
+
+        board.forEach((value, index) => {
+          const cell = document.createElement("button");
+          cell.className = "ttt-cell";
+          cell.textContent = value;
+          cell.addEventListener("click", () => makeMove(index));
+          grid.appendChild(cell);
+        });
+      }
+
+      function resetGame() {
+        board = Array(9).fill("");
+        currentPlayer = "X";
+        gameFinished = false;
+        status.textContent = "Spieler X ist am Zug.";
+        render();
+      }
+
+      resetButton.addEventListener("click", resetGame);
+      resetGame();
+    })();
+
+    // =========================
+    // MEMORY
+    // =========================
+    (() => {
+      const grid = document.getElementById("memoryGrid");
+      const status = document.getElementById("memoryStatus");
+      const resetButton = document.getElementById("memoryReset");
+
+      const symbols = ["🚀", "🌙", "🪐", "⭐", "☄️", "👾", "🛸", "🌌"];
+
+      let cards = [];
+      let flippedCards = [];
+      let matchedPairs = 0;
+      let moves = 0;
+      let locked = false;
+
+      function shuffle(array) {
+        return [...array].sort(() => Math.random() - 0.5);
+      }
+
+      function render() {
+        status.textContent = `Züge: ${moves} · Gefundene Paare: ${matchedPairs} / 8`;
+        grid.innerHTML = "";
+
+        cards.forEach((card) => {
+          const button = document.createElement("button");
+          button.className = "memory-card";
+          button.textContent = card.open || card.match ? card.symbol : "✦";
+          button.disabled = card.open || card.match || locked;
+          button.addEventListener("click", () => flipCard(card.id));
+          grid.appendChild(button);
+        });
+      }
+
+      function flipCard(id) {
+        if (locked) {
+          return;
+        }
+
+        const card = cards.find((item) => item.id === id);
+        if (!card || card.open || card.match) {
+          return;
+        }
+
+        card.open = true;
+        flippedCards.push(card);
+        render();
+
+        if (flippedCards.length === 2) {
+          moves++;
+          const [firstCard, secondCard] = flippedCards;
+
+          if (firstCard.symbol === secondCard.symbol) {
+            firstCard.match = true;
+            secondCard.match = true;
+            matchedPairs++;
+            flippedCards = [];
+            render();
+          } else {
+            locked = true;
+
+            setTimeout(() => {
+              firstCard.open = false;
+              secondCard.open = false;
+              flippedCards = [];
+              locked = false;
+              render();
+            }, 700);
+          }
+        }
+      }
+
+      function resetGame() {
+        cards = shuffle([...symbols, ...symbols]).map((symbol, index) => ({
+          id: index,
+          symbol,
+          open: false,
+          match: false,
+        }));
+
+        flippedCards = [];
+        matchedPairs = 0;
+        moves = 0;
+        locked = false;
+        render();
+      }
+
+      resetButton.addEventListener("click", resetGame);
+      resetGame();
+    })();
+
+    // =========================
+    // SNAKE
+    // =========================
+    (() => {
+      const canvas = document.getElementById("snakeCanvas");
+      const context = canvas.getContext("2d");
+      const status = document.getElementById("snakeStatus");
+      const startButton = document.getElementById("snakeStart");
+
+      const cellSize = 20;
+      const gridCount = canvas.width / cellSize;
+
+      let snake = [];
+      let direction = { x: 1, y: 0 };
+      let food = { x: 10, y: 10 };
+      let score = 0;
+      let timer = null;
+
+      function randomCell() {
+        return {
+          x: Math.floor(Math.random() * gridCount),
+          y: Math.floor(Math.random() * gridCount),
+        };
+      }
+
+      function drawGame() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = "#020818";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let x = 0; x < gridCount; x++) {
+          for (let y = 0; y < gridCount; y++) {
+            context.strokeStyle = "rgba(255,255,255,0.04)";
+            context.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          }
+        }
+
+        context.fillStyle = "#ff4fd8";
+        context.fillRect(
+          food.x * cellSize + 3,
+          food.y * cellSize + 3,
+          cellSize - 6,
+          cellSize - 6
+        );
+
+        snake.forEach((part, index) => {
+          context.fillStyle = index === 0 ? "#66f7ff" : "#00c7d4";
+          context.fillRect(
+            part.x * cellSize + 2,
+            part.y * cellSize + 2,
+            cellSize - 4,
+            cellSize - 4
+          );
+        });
+      }
+
+      function gameLoop() {
+        const head = {
+          x: snake[0].x + direction.x,
+          y: snake[0].y + direction.y,
+        };
+
+        const hitsWall =
+          head.x < 0 ||
+          head.y < 0 ||
+          head.x >= gridCount ||
+          head.y >= gridCount;
+
+        const hitsSelf = snake.some(
+          (part, index) => index > 0 && part.x === head.x && part.y === head.y
+        );
+
+        if (hitsWall || hitsSelf) {
+          clearInterval(timer);
+          status.textContent = `Game Over · Score: ${score} · Starte neu!`;
+          return;
+        }
+
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+          score++;
+          food = randomCell();
+        } else {
+          snake.pop();
+        }
+
+        status.textContent = `Score: ${score} · Nutze Pfeiltasten oder WASD.`;
+        drawGame();
+      }
+
+      function resetGame() {
+        clearInterval(timer);
+
+        snake = [
+          { x: 8, y: 10 },
+          { x: 7, y: 10 },
+          { x: 6, y: 10 },
+        ];
+
+        direction = { x: 1, y: 0 };
+        food = randomCell();
+        score = 0;
+
+        status.textContent = "Score: 0 · Nutze Pfeiltasten oder WASD.";
+        drawGame();
+        timer = setInterval(gameLoop, 115);
+      }
+
+      document.addEventListener("keydown", (event) => {
+        const key = event.key.toLowerCase();
+
+        if ((key === "arrowup" || key === "w") && direction.y !== 1) {
+          direction = { x: 0, y: -1 };
+        }
+        if ((key === "arrowdown" || key === "s") && direction.y !== -1) {
+          direction = { x: 0, y: 1 };
+        }
+        if ((key === "arrowleft" || key === "a") && direction.x !== 1) {
+          direction = { x: -1, y: 0 };
+        }
+        if ((key === "arrowright" || key === "d") && direction.x !== -1) {
+          direction = { x: 1, y: 0 };
+        }
+      });
+
+      startButton.addEventListener("click", resetGame);
+      drawGame();
+    })();
+  </script>
+</body>
+</html>
