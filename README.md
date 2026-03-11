@@ -125,7 +125,3 @@ arcade-website/
 ├── meineseite.css
 └── README.md
 ```
-
----
-
-## 🌐 Live Deployment
