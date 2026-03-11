@@ -18,8 +18,8 @@
 
   <div class="page">
     <header>
-      <h1>Sven's Homepage</h1>
-      <p>Space Neon Arcade mit animiertem Weltraum und spielbaren Mini-Games.</p>
+      <h1>Arcade Games</h1>
+      <p>Wilkommen auf der Arcade Seite im Styl Space Neon Arcade mit animiertem Weltraum und spielbaren Mini-Games.</p>
     </header>
 
     <main class="layout">
@@ -66,6 +66,7 @@
           <div class="headline">
             <span class="badge">Tic Tac Toe</span>
             <h2>X gegen O</h2>
+	    <h4>(Für 2 Spieler)</h4>
           </div>
 
           <p class="subtext" id="tttStatus">Spieler X ist am Zug.</p>
@@ -124,8 +125,8 @@
       </aside>
     </main>
 
-    <footer>
-      © 2026 Sven's Homepage · Space Neon Arcade Edition
+    <footer class="footer">
+       <span>© <span id="year"></span> Sven Medin Kolenovic // aka Shadowhunt</span>
     </footer>
   </div>
 
@@ -134,6 +135,8 @@
     // ALLGEMEIN
     // =========================
     const root = document.documentElement;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
 
     window.addEventListener("scroll", () => {
       root.style.setProperty("--scrollY", `${window.scrollY}px`);
