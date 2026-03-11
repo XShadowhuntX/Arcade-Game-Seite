@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="meineseite.css" />
 </head>
 <body>
+  <canvas id="confettiCanvas"></canvas>
+
   <div class="space-layer nebula"></div>
   <div class="space-layer stars-far"></div>
   <div class="space-layer stars-mid"></div>
@@ -16,8 +18,8 @@
 
   <div class="page">
     <header>
-      <h1>Arcade Games</h1>
-      <p>Wilkommen auf der Arcade Seite im Styl Space Neon Arcade mit animiertem Weltraum und spielbaren Mini-Games.</p>
+      <h1>Sven's Homepage</h1>
+      <p>Space Neon Arcade mit animiertem Weltraum und spielbaren Mini-Games.</p>
     </header>
 
     <main class="layout">
@@ -27,7 +29,7 @@
           <ul>
             <li>Langsam driftende Sterne</li>
             <li>Sternschnuppen</li>
-            <li>Parallax-Scroll-Effekt</li>
+            <li>Parallax-Scroll</li>
             <li>Neon-Arcade-Look</li>
           </ul>
         </section>
@@ -46,6 +48,7 @@
             <span class="badge">Hangman</span>
             <h2>Errate das Wort</h2>
           </div>
+
           <p class="subtext" id="hangmanStatus">Falsche Versuche: 0 / 6</p>
 
           <div class="game-box">
@@ -63,8 +66,8 @@
           <div class="headline">
             <span class="badge">Tic Tac Toe</span>
             <h2>X gegen O</h2>
-	    <h4>(Für 2 Spieler)</h4>
           </div>
+
           <p class="subtext" id="tttStatus">Spieler X ist am Zug.</p>
 
           <div class="game-box">
@@ -81,6 +84,7 @@
             <span class="badge">Memory</span>
             <h2>Finde die Paare</h2>
           </div>
+
           <p class="subtext" id="memoryStatus">Züge: 0 · Gefundene Paare: 0 / 8</p>
 
           <div class="game-box">
@@ -97,6 +101,7 @@
             <span class="badge">Snake</span>
             <h2>Neon Schlange</h2>
           </div>
+
           <p class="subtext" id="snakeStatus">Score: 0 · Nutze Pfeiltasten oder WASD.</p>
 
           <div class="game-box">
@@ -114,27 +119,29 @@
       <aside class="side-column">
         <section class="card">
           <h2>Arcade</h2>
-          <p>Hangman, Tic Tac Toe, Memory und Snake sind spielbar.<br>
-	     Viel Spaß!
-	  </p>
+          <p>Hangman, Tic Tac Toe, Memory und Snake sind spielbar.</p>
         </section>
       </aside>
     </main>
 
-    <footer class="footer">
-	<span>© <span id="year"></span> Sven Medin Kolenovic // aka Shadowhunt</span>
+    <footer>
+      © 2026 Sven's Homepage · Space Neon Arcade Edition
     </footer>
   </div>
 
   <script>
+    // =========================
+    // ALLGEMEIN
+    // =========================
     const root = document.documentElement;
-
-    document.getElementById("year").textContent = new Date().getFullYear();
 
     window.addEventListener("scroll", () => {
       root.style.setProperty("--scrollY", `${window.scrollY}px`);
     });
 
+    // =========================
+    // TAB-NAVIGATION
+    // =========================
     const tabs = document.querySelectorAll(".tab-btn");
     const views = document.querySelectorAll(".game-view");
 
@@ -153,41 +160,71 @@
     });
 
     // =========================
+    // KONFETTI
+    // =========================
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    const confettiContext = confettiCanvas.getContext("2d");
+
+    function resizeConfettiCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+
+    resizeConfettiCanvas();
+    window.addEventListener("resize", resizeConfettiCanvas);
+
+    function launchConfetti() {
+      const pieces = [];
+      const colors = ["#66f7ff", "#ff00d4", "#ffffff", "#ffd166"];
+
+      for (let i = 0; i < 140; i++) {
+        pieces.push({
+          x: window.innerWidth / 2,
+          y: 200,
+          size: 4 + Math.random() * 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          velocityX: (Math.random() - 0.5) * 10,
+          velocityY: -5 - Math.random() * 8,
+          gravity: 0.2,
+          opacity: 1,
+        });
+      }
+
+      function animateConfetti() {
+        confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+        pieces.forEach((piece) => {
+          piece.x += piece.velocityX;
+          piece.y += piece.velocityY;
+          piece.velocityY += piece.gravity;
+          piece.opacity -= 0.01;
+
+          confettiContext.globalAlpha = piece.opacity;
+          confettiContext.fillStyle = piece.color;
+          confettiContext.fillRect(piece.x, piece.y, piece.size, piece.size);
+        });
+
+        const visiblePieces = pieces.filter((piece) => piece.opacity > 0);
+
+        if (visiblePieces.length > 0) {
+          requestAnimationFrame(animateConfetti);
+        } else {
+          confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        }
+      }
+
+      animateConfetti();
+    }
+
+    // =========================
     // HANGMAN
     // =========================
     (() => {
-      const words = [
-        "SVEN",
-        "GALAXIE",
-        "NEON",
-        "KOSMOS",
-        "STERNENSTAUB",
-        "ORBIT",
-        "LASER",
-	"METEORIT",
-	"ASTEROID",
-	"MILCHSTRASSE",
-	"STERN",
-	"UNIVERSUM",
-	"UMLAUFBAHN",
-	"GRAVITATION",
-	"SUPERNOVA",
-	"STERNENSYSTEM",
-	"RAUMSCHIFF",
-	"RAUMSTATION",
-	"ASTRONAUT",
-	"SATELIT",
-	"TELESKOP",
-	"PLANET",
-	"LICHTJAHR",
-	"ATMOSPHERE",
-	"SCHWERELOSIGKEIT",
-	"SONNENSYSTEM",
-      ];
-
+      const words = ["SVEN", "GALAXIE", "NEON", "KOSMOS", "LASER", "ORBIT"];
       const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
       const maxWrong = 6;
-      const stages = [
+
+      const hangmanStages = [
         "",
         "O",
         "O\n |",
@@ -203,45 +240,63 @@
       const keyboard = document.getElementById("hangmanKeyboard");
       const resetButton = document.getElementById("hangmanReset");
 
-      let targetWord = "";
+      let currentWord = "";
       let guessedLetters = [];
       let wrongGuesses = 0;
+      let hasWon = false;
 
-      function isWon() {
-        return targetWord.split("").every((letter) => guessedLetters.includes(letter));
+      function isWordSolved() {
+        return currentWord.split("").every((letter) => guessedLetters.includes(letter));
       }
 
-      function isLost() {
-        return wrongGuesses >= maxWrong;
-      }
-
-      function render() {
+      function renderHangman() {
         status.textContent = `Falsche Versuche: ${wrongGuesses} / ${maxWrong}`;
-        drawing.textContent = stages[wrongGuesses];
+        drawing.textContent = hangmanStages[wrongGuesses];
         wordDisplay.innerHTML = "";
 
-        targetWord.split("").forEach((letter) => {
+        currentWord.split("").forEach((letter) => {
           const span = document.createElement("span");
           span.className = "letter-slot";
-          span.textContent = guessedLetters.includes(letter) || isLost() ? letter : "_";
+          span.textContent = guessedLetters.includes(letter) ? letter : "_";
           wordDisplay.appendChild(span);
         });
+
+        if (isWordSolved() && !hasWon) {
+          hasWon = true;
+          status.textContent = `Gewonnen! Das Wort war ${currentWord}.`;
+          launchConfetti();
+          disableHangmanButtons();
+        }
+
+        if (wrongGuesses >= maxWrong) {
+          status.textContent = `Verloren! Das Wort war ${currentWord}.`;
+          wordDisplay.innerHTML = "";
+
+          currentWord.split("").forEach((letter) => {
+            const span = document.createElement("span");
+            span.className = "letter-slot";
+            span.textContent = letter;
+            wordDisplay.appendChild(span);
+          });
+
+          disableHangmanButtons();
+        }
       }
 
-      function disableKeys() {
+      function disableHangmanButtons() {
         keyboard.querySelectorAll("button").forEach((button) => {
           button.disabled = true;
         });
       }
 
-      function guessLetter(letter, button) {
-        if (guessedLetters.includes(letter) || isWon() || isLost()) {
+      function handleHangmanGuess(letter, button) {
+        if (guessedLetters.includes(letter) || wrongGuesses >= maxWrong || hasWon) {
           return;
         }
 
         guessedLetters.push(letter);
 
-        if (targetWord.includes(letter)) {
+        if (currentWord.includes(letter)) {
           button.classList.add("correct");
         } else {
           wrongGuesses++;
@@ -249,32 +304,29 @@
         }
 
         button.disabled = true;
-        render();
-
-        if (isWon() || isLost()) {
-          disableKeys();
-        }
+        renderHangman();
       }
 
-      function resetGame() {
-        targetWord = words[Math.floor(Math.random() * words.length)];
+      function resetHangman() {
+        currentWord = words[Math.floor(Math.random() * words.length)];
         guessedLetters = [];
         wrongGuesses = 0;
+        hasWon = false;
         keyboard.innerHTML = "";
 
         alphabet.forEach((letter) => {
           const button = document.createElement("button");
           button.className = "hangman-key";
           button.textContent = letter;
-          button.addEventListener("click", () => guessLetter(letter, button));
+          button.addEventListener("click", () => handleHangmanGuess(letter, button));
           keyboard.appendChild(button);
         });
 
-        render();
+        renderHangman();
       }
 
-      resetButton.addEventListener("click", resetGame);
-      resetGame();
+      resetButton.addEventListener("click", resetHangman);
+      resetHangman();
     })();
 
     // =========================
@@ -300,7 +352,7 @@
       let currentPlayer = "X";
       let gameFinished = false;
 
-      function checkWinner() {
+      function checkTicTacToeWinner() {
         for (const [a, b, c] of winningCombinations) {
           if (board[a] && board[a] === board[b] && board[a] === board[c]) {
             return board[a];
@@ -309,14 +361,25 @@
         return null;
       }
 
-      function makeMove(index) {
+      function renderTicTacToe() {
+        grid.innerHTML = "";
+
+        board.forEach((value, index) => {
+          const cell = document.createElement("button");
+          cell.className = "ttt-cell";
+          cell.textContent = value;
+          cell.addEventListener("click", () => handleTicTacToeMove(index));
+          grid.appendChild(cell);
+        });
+      }
+
+      function handleTicTacToeMove(index) {
         if (gameFinished || board[index]) {
           return;
         }
 
         board[index] = currentPlayer;
-
-        const winner = checkWinner();
+        const winner = checkTicTacToeWinner();
 
         if (winner) {
           gameFinished = true;
@@ -329,31 +392,19 @@
           status.textContent = `Spieler ${currentPlayer} ist am Zug.`;
         }
 
-        render();
+        renderTicTacToe();
       }
 
-      function render() {
-        grid.innerHTML = "";
-
-        board.forEach((value, index) => {
-          const cell = document.createElement("button");
-          cell.className = "ttt-cell";
-          cell.textContent = value;
-          cell.addEventListener("click", () => makeMove(index));
-          grid.appendChild(cell);
-        });
-      }
-
-      function resetGame() {
+      function resetTicTacToe() {
         board = Array(9).fill("");
         currentPlayer = "X";
         gameFinished = false;
         status.textContent = "Spieler X ist am Zug.";
-        render();
+        renderTicTacToe();
       }
 
-      resetButton.addEventListener("click", resetGame);
-      resetGame();
+      resetButton.addEventListener("click", resetTicTacToe);
+      resetTicTacToe();
     })();
 
     // =========================
@@ -370,13 +421,13 @@
       let flippedCards = [];
       let matchedPairs = 0;
       let moves = 0;
-      let locked = false;
+      let isLocked = false;
 
-      function shuffle(array) {
+      function shuffleArray(array) {
         return [...array].sort(() => Math.random() - 0.5);
       }
 
-      function render() {
+      function renderMemory() {
         status.textContent = `Züge: ${moves} · Gefundene Paare: ${matchedPairs} / 8`;
         grid.innerHTML = "";
 
@@ -384,25 +435,26 @@
           const button = document.createElement("button");
           button.className = "memory-card";
           button.textContent = card.open || card.match ? card.symbol : "✦";
-          button.disabled = card.open || card.match || locked;
-          button.addEventListener("click", () => flipCard(card.id));
+          button.disabled = card.open || card.match || isLocked;
+          button.addEventListener("click", () => handleMemoryFlip(card.id));
           grid.appendChild(button);
         });
       }
 
-      function flipCard(id) {
-        if (locked) {
+      function handleMemoryFlip(id) {
+        if (isLocked) {
           return;
         }
 
         const card = cards.find((item) => item.id === id);
+
         if (!card || card.open || card.match) {
           return;
         }
 
         card.open = true;
         flippedCards.push(card);
-        render();
+        renderMemory();
 
         if (flippedCards.length === 2) {
           moves++;
@@ -413,23 +465,23 @@
             secondCard.match = true;
             matchedPairs++;
             flippedCards = [];
-            render();
+            renderMemory();
           } else {
-            locked = true;
+            isLocked = true;
 
             setTimeout(() => {
               firstCard.open = false;
               secondCard.open = false;
               flippedCards = [];
-              locked = false;
-              render();
+              isLocked = false;
+              renderMemory();
             }, 700);
           }
         }
       }
 
-      function resetGame() {
-        cards = shuffle([...symbols, ...symbols]).map((symbol, index) => ({
+      function resetMemory() {
+        cards = shuffleArray([...symbols, ...symbols]).map((symbol, index) => ({
           id: index,
           symbol,
           open: false,
@@ -439,12 +491,13 @@
         flippedCards = [];
         matchedPairs = 0;
         moves = 0;
-        locked = false;
-        render();
+        isLocked = false;
+
+        renderMemory();
       }
 
-      resetButton.addEventListener("click", resetGame);
-      resetGame();
+      resetButton.addEventListener("click", resetMemory);
+      resetMemory();
     })();
 
     // =========================
@@ -461,36 +514,21 @@
 
       let snake = [];
       let direction = { x: 1, y: 0 };
+      let nextDirection = { x: 1, y: 0 };
       let food = { x: 10, y: 10 };
       let score = 0;
       let timer = null;
 
-      function randomCell() {
+      function getRandomCell() {
         return {
           x: Math.floor(Math.random() * gridCount),
           y: Math.floor(Math.random() * gridCount),
         };
       }
 
-      function drawGame() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
+      function drawSnakeGame() {
         context.fillStyle = "#020818";
         context.fillRect(0, 0, canvas.width, canvas.height);
-
-        for (let x = 0; x < gridCount; x++) {
-          for (let y = 0; y < gridCount; y++) {
-            context.strokeStyle = "rgba(255,255,255,0.04)";
-            context.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
-          }
-        }
-
-        context.fillStyle = "#ff4fd8";
-        context.fillRect(
-          food.x * cellSize + 3,
-          food.y * cellSize + 3,
-          cellSize - 6,
-          cellSize - 6
-        );
 
         snake.forEach((part, index) => {
           context.fillStyle = index === 0 ? "#66f7ff" : "#00c7d4";
@@ -501,9 +539,19 @@
             cellSize - 4
           );
         });
+
+        context.fillStyle = "#ff4fd8";
+        context.fillRect(
+          food.x * cellSize + 3,
+          food.y * cellSize + 3,
+          cellSize - 6,
+          cellSize - 6
+        );
       }
 
-      function gameLoop() {
+      function snakeLoop() {
+        direction = { ...nextDirection };
+
         const head = {
           x: snake[0].x + direction.x,
           y: snake[0].y + direction.y,
@@ -521,7 +569,7 @@
 
         if (hitsWall || hitsSelf) {
           clearInterval(timer);
-          status.textContent = `Game Over · Score: ${score} · Starte neu!`;
+          status.textContent = `Game Over · Score: ${score}`;
           return;
         }
 
@@ -529,18 +577,16 @@
 
         if (head.x === food.x && head.y === food.y) {
           score++;
-          food = randomCell();
+          food = getRandomCell();
         } else {
           snake.pop();
         }
 
         status.textContent = `Score: ${score} · Nutze Pfeiltasten oder WASD.`;
-        drawGame();
+        drawSnakeGame();
       }
 
-      function resetGame() {
-        clearInterval(timer);
-
+      function resetSnake() {
         snake = [
           { x: 8, y: 10 },
           { x: 7, y: 10 },
@@ -548,33 +594,36 @@
         ];
 
         direction = { x: 1, y: 0 };
-        food = randomCell();
+        nextDirection = { x: 1, y: 0 };
+        food = getRandomCell();
         score = 0;
 
+        clearInterval(timer);
+        timer = setInterval(snakeLoop, 160);
+
         status.textContent = "Score: 0 · Nutze Pfeiltasten oder WASD.";
-        drawGame();
-        timer = setInterval(gameLoop, 115);
+        drawSnakeGame();
       }
 
       document.addEventListener("keydown", (event) => {
         const key = event.key.toLowerCase();
 
         if ((key === "arrowup" || key === "w") && direction.y !== 1) {
-          direction = { x: 0, y: -1 };
+          nextDirection = { x: 0, y: -1 };
         }
         if ((key === "arrowdown" || key === "s") && direction.y !== -1) {
-          direction = { x: 0, y: 1 };
+          nextDirection = { x: 0, y: 1 };
         }
         if ((key === "arrowleft" || key === "a") && direction.x !== 1) {
-          direction = { x: -1, y: 0 };
+          nextDirection = { x: -1, y: 0 };
         }
         if ((key === "arrowright" || key === "d") && direction.x !== -1) {
-          direction = { x: 1, y: 0 };
+          nextDirection = { x: 1, y: 0 };
         }
       });
 
-      startButton.addEventListener("click", resetGame);
-      drawGame();
+      startButton.addEventListener("click", resetSnake);
+      drawSnakeGame();
     })();
   </script>
 </body>
