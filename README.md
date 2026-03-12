@@ -14,13 +14,13 @@ Dazu gehören Sternenfelder, Sternschnuppen, Parallax-Scrolling und ein Konfetti
 ## Repository klonen
 
 ```bash
-git clone https://github.com/DEINNAME/REPOSITORYNAME.git
+git clone https://github.com/XShadowhuntX/Arcade-Game-Seite.git
 ```
 
 ## In den Projektordner wechseln
 
 ```bash
-cd REPOSITORYNAME
+cd Arcade-Game-Seite
 ```
 
 ## Webseite starten
